@@ -1,19 +1,35 @@
-function foo(callback) {
-  console.log("1"); // print 1
-  setTimeout(() => { // set timer and then go back ayscn until the timer will be stop 
-    const data = { name: "alice", age: 42 };
-    console.log("2"); //after 2 secends print 2
-    callback(data); // call bar with data
-    console.log("3"); //after bar will finish the output with 3
-  }, 2000);
-}
-function bar(data) {
-  console.log("4"); //after 2 the call to bar print 4
-  console.log("data:", data); //print the data after 4
-}
-console.log("5"); // first will this will be printed
-foo(bar); // then call this  goes to foo
-console.log("6");// until the timer stoped pront 6
 
+function foo() {
+  console.log("1"); //first prints 1
+  return new Promise((resolve, reject) => {
+    console.log("2"); //print 2
+    setTimeout(() => { //now waiting , we will finish foo first
+      console.log("3"); //prints 3
+      const r = Math.random();
+      console.log(`r = ${r}`); //print r value
+      if (r < 0.5) { // in case r less than 0.5
+        console.log("4"); //print 4
+        resolve({ name: "Alice", age: 42 }); //will send after foo will be finished
+        console.log("5"); //prints 5
+      } else {
+        console.log("6"); // prints 6
+        reject("No luck"); //will send after foo will be finished
+        console.log("7"); //prints 7
+      }
+    }, 2000);
+    console.log("8"); //print 8 after 2 because of timer
+  });
+}
 
-// i think the output will be 5 1 6 2 4 data: name: "alice", age: 42 3
+console.log("9"); //first line prints 9
+foo() //call foo 
+  .then((data) => { //wait until foo will be finished
+    console.log("data:", data); //prints data if foo send resolved
+  })
+  .catch((error) => {
+    console.error("error:", error); // prints error if foo send rejects
+  });
+
+  //i think the output will be 9 1 2 8 3 r {depends on r}
+  // in case r<0.5 : 4 5 data: name: "Alice", age: 42
+  // in case r>=0.5 : 6 7 error No luck
